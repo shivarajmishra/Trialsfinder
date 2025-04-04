@@ -19,5 +19,3 @@ This is a Flask-based web application that allows users to search for clinical t
 - **pycountry** (for country name extraction)
 - **serverless-wsgi** (to adapt the app for serverless deployment)
 
-## Project Structure
-
