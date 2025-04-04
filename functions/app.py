@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, jsonify, send_file
+import os
 from pytrials.client import ClinicalTrials
 import pandas as pd
 import plotly.express as px
 import pycountry
 import io
 
+# Create a Flask app
 app = Flask(__name__)
 
 # Function to extract country from location string
@@ -21,16 +23,12 @@ def extract_country_from_list(location_string):
 def get_clinical_trials(search_terms, target_fields, max_no_studies=1000):
     ct = ClinicalTrials()
     clinical_trials = ct.get_study_fields(
-        search_expr=_terms,
+        search_expr=search_terms,  # _terms is undefined in your original code
         fields=target_fields,
         max_studies=max_no_studies,
         fmt="csv"
     )
     return clinical_trials
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/search', methods=['POST'])
 def search():
@@ -109,5 +107,7 @@ def download():
     # Send the file as a response for download
     return send_file(output, as_attachment=True, download_name="clinical_trials.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Lambda handler
+def handler(event, context):
+    with app.app_context():
+        return app.full_dispatch_request()

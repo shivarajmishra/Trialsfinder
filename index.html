@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Trials Search</title>
+    <!-- Link to a CSS framework for styling -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <style>
+        /* Custom CSS for positioning the download button at the top right */
+        #downloadButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Clinical Trials Finder</h1>
+
+        <!-- Form to handle search terms and date fields -->
+        <form id="search-form">
+            <div class="mb-3">
+                <label for="search_terms" class="form-label">Search Terms</label>
+                <input type="text" id="search_terms" name="search_terms" class="form-control" placeholder="Enter search terms">
+            </div>
+            <div class="mb-3">
+                <label for="start_date_from" class="form-label">Start Date From</label>
+                <input type="date" id="start_date_from" name="start_date_from" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="start_date_to" class="form-label">Start Date To</label>
+                <input type="date" id="start_date_to" name="start_date_to" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="pc_date_from" class="form-label">Primary Completion Date From</label>
+                <input type="date" id="pc_date_from" name="pc_date_from" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="pc_date_to" class="form-label">Primary Completion Date To</label>
+                <input type="date" id="pc_date_to" name="pc_date_to" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="date_field" class="form-label">Date Field</label>
+                <select id="date_field" name="date_field" class="form-select">
+                    <option value="Start Date">Start Date</option>
+                    <option value="Primary Completion Date">Primary Completion Date</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+
+        <!-- Button to download data as Excel, placed at the top-right -->
+        <button id="downloadButton" class="btn btn-success mt-3" disabled>Download Excel</button>
+
+        <!-- Plotly graph here, moved below search filters -->
+        <div id="graph-div" class="mt-5"></div>
+
+        <!-- Table to show search results -->
+        <h3 class="mt-5">Search Results</h3>
+        <table id="results-table" class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>NCT Number</th>
+                    <th>Study Title</th>
+                    <th>Country</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Include jQuery and other necessary scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Handle form submission to fetch data
+        $('#search-form').submit(function(event) {
+            event.preventDefault();
+
+            var formData = {
+                search_terms: $('#search_terms').val(),
+                date_field: $('#date_field').val(),
+                start_date_from: $('#start_date_from').val(),
+                start_date_to: $('#start_date_to').val(),
+                pc_date_from: $('#pc_date_from').val(),
+                pc_date_to: $('#pc_date_to').val()
+            };
+
+            // AJAX request to Flask route
+            $.ajax({
+                url: '/search',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    // Display table data
+                    var tableBody = $('#results-table tbody');
+                    tableBody.empty();
+                    response.table_data.forEach(function(row) {
+                        var tr = $('<tr>');
+                        tr.append('<td>' + row['NCT Number'] + '</td>');
+                        tr.append('<td>' + row['Study Title'] + '</td>');
+                        tr.append('<td>' + row['Country'] + '</td>');
+                        tr.append('<td>' + row[formData.date_field] + '</td>');
+                        tableBody.append(tr);
+                    });
+
+                    // Inject the Plotly graph
+                    $('#graph-div').html(response.graph_html);
+
+                    // Enable the download button after search
+                    $('#downloadButton').prop('disabled', false);
+                },
+                error: function(error) {
+                    console.error('Error fetching data:', error);
+                }
+            });
+        });
+
+        // Handle download button click
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            const searchTerms = $('#search_terms').val(); // Get search terms from input field
+            const dateField = $('#date_field').val(); // Get selected date field
+            window.location.href = `/download?search_terms=${searchTerms}&date_field=${dateField}`;
+        });
+    </script>
+</body>
+</html>
