@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from server import app  # Import the Flask app from your main file (app.py)
+from functions import app  # Import the Flask app from your main file (app.py)
 
 # Create a lambda function to handle requests
 def handler(event, context):
