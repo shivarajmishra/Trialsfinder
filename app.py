@@ -21,7 +21,7 @@ def extract_country_from_list(location_string):
 def get_clinical_trials(search_terms, target_fields, max_no_studies=1000):
     ct = ClinicalTrials()
     clinical_trials = ct.get_study_fields(
-        search_expr=_terms,
+        search_expr=search_terms,
         fields=target_fields,
         max_studies=max_no_studies,
         fmt="csv"
