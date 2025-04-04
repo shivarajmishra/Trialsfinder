@@ -1,7 +1,8 @@
 [build]
-  command = "pip install -r requirements.txt && python app.py"
-  publish = "static"
-  functions = "netlify/functions"
+functions = "functions"
+command = "pip install -r requirements.txt -t functions/flask_api"
 
-[[plugins]]
-  package = "@netlify/plugin-functions-install-core"
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/flask_api"
+status = 200

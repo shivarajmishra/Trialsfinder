@@ -1,8 +1,8 @@
-Flask==2.0.2
-pytrials==1.0.0
-pandas==1.3.3
-plotly==5.0.0
-pycountry==22.1.10
-xlsxwriter==3.0.2
-setuptools==67.0.0  # Add this line
-six==1.16.0        # Add this line
+Flask==2.3.3
+pytrials
+pandas
+plotly
+pycountry
+mangum
+openpyxl
+xlsxwriter
