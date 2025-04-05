@@ -5,6 +5,9 @@ import plotly.express as px
 import pycountry
 import io
 
+# Increase CSV field size limit to avoid the field size limit error
+csv.field_size_limit(10 * 1024 * 1024)  # Set to 10MB, adjust as needed
+
 app = Flask(__name__)
 
 # Function to extract country from location string

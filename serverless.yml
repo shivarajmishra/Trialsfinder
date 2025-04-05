@@ -1,4 +1,4 @@
-service: flask-app
+service: trialsfinder
 
 provider:
   name: aws
