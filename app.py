@@ -49,11 +49,16 @@ def search():
     target_fields = ['NCT Number', 'Study Title', 'Study URL', 'Locations', 'Start Date', 'Primary Completion Date']
     trials_data = get_clinical_trials(search_terms, target_fields)
     df = pd.DataFrame(trials_data[1:], columns=trials_data[0])
+    
+    # Extract Country
     df['Country'] = df['Locations'].apply(lambda x: extract_country_from_list(str(x)))
     
-    # Convert date fields to datetime
+    # Convert date fields to datetime (Coerce invalid dates to NaT)
     df['Start Date'] = pd.to_datetime(df['Start Date'], errors='coerce')
     df['Primary Completion Date'] = pd.to_datetime(df['Primary Completion Date'], errors='coerce')
+    
+    # Remove rows with NaT (invalid date values)
+    df = df.dropna(subset=['Start Date', 'Primary Completion Date'])
     
     # Apply date filters
     if start_date_from:
@@ -65,9 +70,10 @@ def search():
     if pc_date_to:
         df = df[df['Primary Completion Date'] <= pd.to_datetime(pc_date_to)]
     
+    # Remove rows where Country is NaN
     df_filtered = df.dropna(subset=['Country'])
     
-    # Convert to JSON
+    # Convert filtered data to JSON for response
     table_data = df_filtered[['NCT Number', 'Study Title', 'Country', date_field]].to_dict(orient='records')
     
     # Generate a Plotly choropleth map for the distribution of trials by country
@@ -98,9 +104,11 @@ def download():
     target_fields = ['NCT Number', 'Study Title', 'Study URL', 'Locations', 'Start Date', 'Primary Completion Date']
     trials_data = get_clinical_trials(search_terms, target_fields)
     df = pd.DataFrame(trials_data[1:], columns=trials_data[0])
+    
+    # Extract Country
     df['Country'] = df['Locations'].apply(lambda x: extract_country_from_list(str(x)))
     
-    # Convert date fields to datetime
+    # Convert date fields to datetime (Coerce invalid dates to NaT)
     df['Start Date'] = pd.to_datetime(df['Start Date'], errors='coerce')
     df['Primary Completion Date'] = pd.to_datetime(df['Primary Completion Date'], errors='coerce')
     
