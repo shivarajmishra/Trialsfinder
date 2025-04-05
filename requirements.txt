@@ -4,5 +4,4 @@ pandas
 plotly
 pycountry
 xlsxwriter
-serverless
 serverless-wsgi
