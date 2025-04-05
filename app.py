@@ -5,6 +5,7 @@ import plotly.express as px
 import pycountry
 import io
 import csv
+import plotly.graph_objects as go
 
 # Increase CSV field size limit to avoid the field size limit error
 csv.field_size_limit(10 * 1024 * 1024)  # Set to 10MB, adjust as needed
@@ -90,6 +91,17 @@ def search():
                         color_continuous_scale='Viridis',  # You can choose a different color scale
                         title=f"Distribution of Clinical Trials by Country for {search_terms}")
     
+    fig.update_layout(
+    geo=dict(
+        projection_type="natural earth",
+        showland=True,
+        landcolor="white",
+    ),
+    title=f"Distribution of Clinical Trials by Country for {search_terms}",
+    title_font=dict(size=24, family="Arial", weight="bold"),  # Increase size and make title bold
+    width=1200,  # Set width of the figure
+    height=800,  # Set height of the figure
+)
     graph_html = fig.to_html(full_html=False)
     
     return jsonify({'table_data': table_data, 'graph_html': graph_html})
