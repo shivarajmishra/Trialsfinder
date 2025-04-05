@@ -1,8 +1,8 @@
 [build]
-functions = "functions"
-command = "pip install -r requirements.txt -t functions/flask_api"
+  functions = "netlify/functions"
+  command = "pip install -r requirements.txt && serverless deploy"
 
 [[redirects]]
-from = "/api/*"
-to = "/.netlify/functions/flask_api"
-status = 200
+  from = "/*"
+  to = "/.netlify/functions/app"
+  status = 200

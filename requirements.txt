@@ -1,8 +1,8 @@
-Flask==2.3.3
+Flask
 pytrials
 pandas
 plotly
 pycountry
-mangum
-openpyxl
 xlsxwriter
+serverless
+serverless-wsgi
