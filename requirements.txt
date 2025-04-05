@@ -5,3 +5,4 @@ plotly
 pycountry
 xlsxwriter
 serverless-wsgi
+gunicorn
