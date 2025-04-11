@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, jsonify, send_file
-from pytrials.client import ClinicalTrials
 import pandas as pd
 import plotly.express as px
 import pycountry
 import io
 import csv
-import plotly.graph_objects as go
+import requests
+from urllib.parse import quote_plus
 
 # Increase CSV field size limit to avoid the field size limit error
 csv.field_size_limit(10 * 1024 * 1024)  # Set to 10MB, adjust as needed
@@ -22,16 +22,27 @@ def extract_country_from_list(location_string):
             return country
     return None
 
-# Function to get clinical trials data
-def get_clinical_trials(search_terms, target_fields, max_no_studies=1000):
-    ct = ClinicalTrials()
-    clinical_trials = ct.get_study_fields(
-        search_expr=search_terms,
-        fields=target_fields,
-        max_studies=max_no_studies,
-        fmt="csv"
+# Function to get clinical trials data using the URL-based method
+def fetch_clinical_trials_data(search_terms, target_fields, max_no_studies=50000):
+    # Encode the search term and fields into the URL format
+    search_cond = quote_plus(search_terms)
+    field_str = "%2C".join([quote_plus(f) for f in target_fields])
+    
+    # Construct the URL to fetch the data
+    url = (
+        f"https://clinicaltrials.gov/api/int/studies/download"
+        f"?format=csv&cond={search_cond}"
+        f"&aggFilters=&sort=%40relevance&fields={field_str}"
     )
-    return clinical_trials
+    
+    print(f"Fetching clinical trials data from: {url}")
+    
+    # Fetch the data from the URL
+    response = requests.get(url)
+    
+    # Read the CSV response into a DataFrame
+    df = pd.read_csv(io.StringIO(response.text))
+    return df
 
 @app.route('/')
 def index():
@@ -48,8 +59,7 @@ def search():
     pc_date_to = data.get('pc_date_to')
     
     target_fields = ['NCT Number', 'Study Title', 'Study URL', 'Locations', 'Start Date', 'Primary Completion Date']
-    trials_data = get_clinical_trials(search_terms, target_fields)
-    df = pd.DataFrame(trials_data[1:], columns=trials_data[0])
+    df = fetch_clinical_trials_data(search_terms, target_fields)
     
     # Extract Country
     df['Country'] = df['Locations'].apply(lambda x: extract_country_from_list(str(x)))
@@ -114,8 +124,7 @@ def download():
     
     # Fetch the data and process it again
     target_fields = ['NCT Number', 'Study Title', 'Study URL', 'Locations', 'Start Date', 'Primary Completion Date']
-    trials_data = get_clinical_trials(search_terms, target_fields)
-    df = pd.DataFrame(trials_data[1:], columns=trials_data[0])
+    df = fetch_clinical_trials_data(search_terms, target_fields)
     
     # Extract Country
     df['Country'] = df['Locations'].apply(lambda x: extract_country_from_list(str(x)))
