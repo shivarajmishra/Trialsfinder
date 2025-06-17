@@ -2,6 +2,7 @@
 
 This is a Flask-based web application that allows users to search for clinical trials using specified terms, date ranges, and view the results on an interactive map. The app is designed to be deployed as a serverless function on **Netlify**, leveraging the `serverless-wsgi` package.
 Link https://trialsfinder.onrender.com/
+![Alt text](https://github.com/shivarajmishra/Trialsfinder/blob/main/Trialsfinder.png)
 ## Features
 
 - **Search Clinical Trials**: Users can enter search terms, select date ranges, and filter clinical trials based on their chosen criteria.
